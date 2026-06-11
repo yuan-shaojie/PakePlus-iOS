@@ -1,0 +1,1473 @@
+/* ============================================
+   AI Mascot - 科幻机器人 V5
+   青绿色发光(#00f0ff) 拼接式机甲
+   头部圆角矩形 + 躯干 + 蟹钳 + 机械腿
+   ============================================ */
+
+/* === 背景遮罩 === */
+.ai-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 8;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+}
+
+.ai-backdrop.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* === 机器人容器 === */
+.ai-mascot {
+    position: absolute;
+    left: 16px;
+    bottom: 16px;
+    z-index: 10;
+    display: block;
+    visibility: visible;
+    opacity: 1;
+    pointer-events: none;
+    transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* 思考提示条 */
+.ai-mascot-thinking-bar {
+    position: absolute;
+    left: calc(100% + 12px);
+    top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    background: rgba(13, 17, 23, 0.95);
+    border: 1px solid #00f0ff;
+    border-radius: 14px;
+    font-size: 12px;
+    color: #00f0ff;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    box-shadow: 0 0 14px rgba(0, 240, 255, 0.3);
+    z-index: 25;
+}
+
+.ai-mascot.thinking .ai-mascot-thinking-bar {
+    opacity: 1;
+}
+
+.ai-mascot.think-left .ai-mascot-thinking-bar {
+    left: auto;
+    right: calc(100% + 12px);
+}
+
+.thinking-bar-label { font-weight: 500; }
+
+.thinking-bar-dots { display: flex; gap: 2px; }
+
+.thinking-bar-dots span {
+    display: block;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #00f0ff;
+    animation: thinkingDot 0.9s ease-in-out infinite;
+    box-shadow: 0 0 4px #00f0ff;
+}
+
+.thinking-bar-dots span:nth-child(1) { animation-delay: 0s; }
+.thinking-bar-dots span:nth-child(2) { animation-delay: 0.15s; }
+.thinking-bar-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes thinkingDot {
+    0%, 60%, 100% { opacity: 0.3; transform: scale(0.6); }
+    30% { opacity: 1; transform: scale(1.2); }
+}
+
+.ai-mascot.answering .ai-mascot-thinking-bar,
+.ai-mascot.speaking .ai-mascot-thinking-bar {
+    opacity: 0;
+}
+
+/* ========================================
+   机器人身体容器 - 透明，仅用于定位
+   ======================================== */
+.ai-mascot-body {
+    position: relative;
+    width: 74px;
+    height: 134px;
+    background: transparent;
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    overflow: visible;
+}
+
+/* === 状态动画 === */
+.ai-mascot.thinking .ai-mascot-body {
+    animation: thinkBounce 0.6s ease-in-out infinite;
+}
+
+.ai-mascot.answering,
+.ai-mascot.speaking {
+    left: 50% !important;
+    bottom: 6% !important;
+    top: auto !important;
+    transform: translate(-50%, 0) !important;
+    z-index: 20;
+}
+
+.ai-mascot.answering .ai-mascot-body,
+.ai-mascot.speaking .ai-mascot-body {
+    width: 170px;
+    height: 300px;
+    animation: mascotFloat 2.5s ease-in-out infinite;
+}
+
+@keyframes thinkBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+@keyframes mascotFloat {
+    0%, 100% { transform: translateY(0); }
+    25% { transform: translateY(-6px); }
+    50% { transform: translateY(2px); }
+    75% { transform: translateY(-3px); }
+}
+
+/* ========================================
+   天线
+   ======================================== */
+.ai-mascot-antenna {
+    position: absolute;
+    width: 3px;
+    height: 14px;
+    background: linear-gradient(180deg, #00f0ff, rgba(0, 240, 255, 0.3));
+    border-radius: 2px;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    box-shadow: 0 0 8px rgba(0, 240, 255, 0.6), 0 0 16px rgba(0, 240, 255, 0.3);
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ai-mascot-antenna-tip {
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #00f0ff;
+    box-shadow: 0 0 12px #00f0ff, 0 0 24px rgba(0, 240, 255, 0.8);
+    animation: antennaGlow 1.5s ease-in-out infinite;
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes antennaGlow {
+    0%, 100% { opacity: 0.5; transform: translateX(-50%) scale(0.8); }
+    50% { opacity: 1; transform: translateX(-50%) scale(1.4); }
+}
+
+.ai-mascot.answering .ai-mascot-antenna,
+.ai-mascot.speaking .ai-mascot-antenna {
+    height: 22px;
+    top: -28px;
+    width: 4px;
+}
+
+.ai-mascot.answering .ai-mascot-antenna-tip,
+.ai-mascot.speaking .ai-mascot-antenna-tip {
+    width: 14px;
+    height: 14px;
+    top: -10px;
+    box-shadow: 0 0 20px #00f0ff, 0 0 40px rgba(0, 240, 255, 0.8);
+}
+
+/* ========================================
+   头部 - 圆角矩形
+   ======================================== */
+.ai-mascot-head {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 56px;
+    height: 28px;
+    background: linear-gradient(180deg, #1a1f2e 0%, #0c1016 100%);
+    border: 1.5px solid #00f0ff;
+    border-radius: 8px;
+    box-shadow:
+        0 0 0 1px rgba(0, 240, 255, 0.2),
+        0 0 16px rgba(0, 240, 255, 0.15),
+        0 4px 16px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 5;
+}
+
+.ai-mascot-head::before {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border: 1px solid rgba(0, 240, 255, 0.1);
+    border-radius: 6px;
+    pointer-events: none;
+}
+
+.ai-mascot.answering .ai-mascot-head,
+.ai-mascot.speaking .ai-mascot-head {
+    width: 130px;
+    height: 64px;
+    border-radius: 14px;
+    border-width: 2px;
+    box-shadow:
+        0 0 0 2px rgba(0, 240, 255, 0.3),
+        0 0 28px rgba(0, 240, 255, 0.2),
+        0 6px 28px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* === 脸部面板 === */
+.ai-mascot-face {
+    position: absolute;
+    inset: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+}
+
+.ai-mascot.answering .ai-mascot-face,
+.ai-mascot.speaking .ai-mascot-face {
+    inset: 8px;
+    gap: 6px;
+}
+
+/* === 眼睛 === */
+.ai-mascot-eyes {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.ai-mascot-eye {
+    width: 10px;
+    height: 10px;
+    background: #05080c;
+    border: 1.5px solid #00f0ff;
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+        0 0 8px rgba(0, 240, 255, 0.5),
+        0 0 16px rgba(0, 240, 255, 0.2),
+        inset 0 0 6px rgba(0, 240, 255, 0.1);
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ai-mascot-eye-glow {
+    position: absolute;
+    inset: 1px;
+    background: radial-gradient(circle,
+        rgba(0, 240, 255, 0.8) 0%,
+        rgba(0, 240, 255, 0.4) 30%,
+        rgba(0, 240, 255, 0.1) 60%,
+        transparent 80%
+    );
+    border-radius: 50%;
+    animation: eyePulse 2s ease-in-out infinite;
+}
+
+@keyframes eyePulse {
+    0%, 100% { opacity: 0.6; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.2); }
+}
+
+.ai-mascot.answering .ai-mascot-eyes,
+.ai-mascot.speaking .ai-mascot-eyes {
+    gap: 22px;
+}
+
+.ai-mascot.answering .ai-mascot-eye,
+.ai-mascot.speaking .ai-mascot-eye {
+    width: 22px;
+    height: 22px;
+    border-width: 2px;
+    box-shadow:
+        0 0 20px rgba(0, 240, 255, 0.6),
+        0 0 40px rgba(0, 240, 255, 0.25),
+        inset 0 0 10px rgba(0, 240, 255, 0.2);
+}
+
+.ai-mascot.thinking .ai-mascot-eye-glow {
+    animation: eyeThink 0.4s ease-in-out infinite alternate;
+}
+
+@keyframes eyeThink {
+    0% { opacity: 0.3; transform: scale(0.6); }
+    100% { opacity: 0.9; transform: scale(1); }
+}
+
+/* === 鼻子 === */
+.ai-mascot-nose {
+    width: 5px;
+    height: 5px;
+    background: rgba(0, 240, 255, 0.4);
+    border: 1px solid rgba(0, 240, 255, 0.6);
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(0, 240, 255, 0.3);
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ai-mascot.answering .ai-mascot-nose,
+.ai-mascot.speaking .ai-mascot-nose {
+    width: 10px;
+    height: 10px;
+    border-width: 1.5px;
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+}
+
+/* === 嘴巴 - 会张合 === */
+.ai-mascot-mouth {
+    width: 16px;
+    height: 5px;
+    background: rgba(0, 240, 255, 0.1);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 0 4px rgba(0, 240, 255, 0.15);
+}
+
+.ai-mascot-mouth::before {
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    right: 1px;
+    height: 1px;
+    background: rgba(0, 240, 255, 0.5);
+    border-radius: 1px;
+}
+
+.ai-mascot.answering .ai-mascot-mouth,
+.ai-mascot.speaking .ai-mascot-mouth {
+    width: 36px;
+    height: 10px;
+    border-width: 1.5px;
+    animation: mouthOpen 0.3s ease-in-out infinite alternate;
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+}
+
+@keyframes mouthOpen {
+    0% { height: 8px; width: 32px; }
+    100% { height: 14px; width: 40px; }
+}
+
+.ai-mascot.answering .ai-mascot-mouth::before,
+.ai-mascot.speaking .ai-mascot-mouth::before {
+    height: 2px;
+    background: rgba(0, 255, 150, 0.8);
+    box-shadow: 0 0 6px rgba(0, 255, 150, 0.6);
+    animation: mouthLine 0.3s ease-in-out infinite alternate;
+}
+
+@keyframes mouthLine {
+    0% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+/* === 耳朵面板 === */
+.ai-mascot-ear {
+    position: absolute;
+    width: 6px;
+    height: 14px;
+    top: 7px;
+    background: #0c1016;
+    border: 1px solid #00f0ff;
+    border-radius: 3px;
+    box-shadow: 0 0 6px rgba(0, 240, 255, 0.15);
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ai-mascot-ear-l { left: -8px; }
+.ai-mascot-ear-r { right: -8px; }
+
+.ai-mascot-ear::after {
+    content: '';
+    position: absolute;
+    left: 1px;
+    right: 1px;
+    top: 2px;
+    bottom: 2px;
+    background: rgba(0, 240, 255, 0.15);
+    border-radius: 2px;
+    transition: all 0.5s;
+}
+
+.ai-mascot.answering .ai-mascot-ear,
+.ai-mascot.speaking .ai-mascot-ear {
+    width: 12px;
+    height: 28px;
+    top: 18px;
+    border-radius: 4px;
+    border-color: #00f0ff;
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
+}
+
+.ai-mascot.answering .ai-mascot-ear-l,
+.ai-mascot.speaking .ai-mascot-ear-l { left: -16px; }
+
+.ai-mascot.answering .ai-mascot-ear-r,
+.ai-mascot.speaking .ai-mascot-ear-r { right: -16px; }
+
+.ai-mascot.answering .ai-mascot-ear::after,
+.ai-mascot.speaking .ai-mascot-ear::after {
+    background: rgba(0, 240, 255, 0.25);
+    box-shadow: 0 0 6px rgba(0, 240, 255, 0.4);
+}
+
+/* ========================================
+   脖子连接器
+   ======================================== */
+.ai-mascot-neck {
+    position: absolute;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 8px;
+    background: #1a1f2e;
+    border: 1px solid #00f0ff;
+    border-radius: 3px;
+    z-index: 3;
+    box-shadow: 0 0 6px rgba(0, 240, 255, 0.1);
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ai-mascot-neck::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    right: 2px;
+    height: 1px;
+    background: rgba(0, 240, 255, 0.4);
+    border-radius: 1px;
+}
+
+.ai-mascot-neck::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 2px;
+    right: 2px;
+    height: 1px;
+    background: rgba(0, 240, 255, 0.4);
+    border-radius: 1px;
+}
+
+.ai-mascot.answering .ai-mascot-neck,
+.ai-mascot.speaking .ai-mascot-neck {
+    top: 68px;
+    width: 20px;
+    height: 12px;
+    border-radius: 4px;
+    border-color: #00f0ff;
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+}
+
+.ai-mascot.answering .ai-mascot-neck::before,
+.ai-mascot.speaking .ai-mascot-neck::before {
+    height: 2px;
+    top: 3px;
+    left: 3px;
+    right: 3px;
+    background: rgba(0, 240, 255, 0.5);
+}
+
+.ai-mascot.answering .ai-mascot-neck::after,
+.ai-mascot.speaking .ai-mascot-neck::after {
+    height: 2px;
+    bottom: 3px;
+    left: 3px;
+    right: 3px;
+    background: rgba(0, 240, 255, 0.5);
+}
+
+/* ========================================
+   躯干
+   ======================================== */
+.ai-mascot-torso {
+    position: absolute;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 58px;
+    height: 44px;
+    background: linear-gradient(180deg, #1a1f2e 0%, #0c1016 100%);
+    border: 1.5px solid #00f0ff;
+    border-radius: 10px;
+    box-shadow:
+        0 0 0 1px rgba(0, 240, 255, 0.15),
+        0 4px 16px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    z-index: 4;
+}
+
+.ai-mascot-torso::before {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border: 1px solid rgba(0, 240, 255, 0.08);
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+.ai-mascot-torso::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    bottom: 10px;
+    left: 50%;
+    width: 1px;
+    background: rgba(0, 240, 255, 0.1);
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.ai-mascot.answering .ai-mascot-torso,
+.ai-mascot.speaking .ai-mascot-torso {
+    top: 82px;
+    width: 136px;
+    height: 100px;
+    border-radius: 16px;
+    border-width: 2px;
+    gap: 10px;
+    box-shadow:
+        0 0 0 2px rgba(0, 240, 255, 0.25),
+        0 0 24px rgba(0, 240, 255, 0.15),
+        0 8px 32px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.ai-mascot.answering .ai-mascot-torso::after,
+.ai-mascot.speaking .ai-mascot-torso::after {
+    background: rgba(0, 240, 255, 0.15);
+    width: 2px;
+}
+
+/* === 核心能源 === */
+.ai-mascot-core {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0, 255, 150, 0.8) 0%, rgba(0, 240, 255, 0.4) 40%, transparent 70%);
+    border: 1.5px solid rgba(0, 240, 255, 0.6);
+    position: relative;
+    animation: corePulse 1.5s ease-in-out infinite;
+    box-shadow: 0 0 14px rgba(0, 255, 150, 0.4), 0 0 28px rgba(0, 240, 255, 0.2);
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 1;
+}
+
+.ai-mascot-core-ring {
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 240, 255, 0.2);
+    animation: coreRing 3s linear infinite;
+}
+
+@keyframes corePulse {
+    0%, 100% { box-shadow: 0 0 14px rgba(0, 255, 150, 0.4), 0 0 28px rgba(0, 240, 255, 0.2); }
+    50% { box-shadow: 0 0 24px rgba(0, 255, 150, 0.6), 0 0 48px rgba(0, 240, 255, 0.3); }
+}
+
+@keyframes coreRing {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.ai-mascot.answering .ai-mascot-core,
+.ai-mascot.speaking .ai-mascot-core {
+    width: 34px;
+    height: 34px;
+    animation: corePulseFast 0.8s ease-in-out infinite;
+}
+
+@keyframes corePulseFast {
+    0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 150, 0.5), 0 0 40px rgba(0, 240, 255, 0.2); }
+    50% { box-shadow: 0 0 36px rgba(0, 255, 150, 0.7), 0 0 64px rgba(0, 240, 255, 0.4); }
+}
+
+.ai-mascot.answering .ai-mascot-core-ring,
+.ai-mascot.speaking .ai-mascot-core-ring {
+    inset: -6px;
+    border-width: 1.5px;
+}
+
+/* === 腰带指示灯 === */
+.ai-mascot-belt {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.ai-mascot-belt span {
+    display: block;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: rgba(0, 240, 255, 0.6);
+    box-shadow: 0 0 4px rgba(0, 240, 255, 0.4);
+    animation: beltBlink 2s ease-in-out infinite;
+}
+
+.ai-mascot-belt span:nth-child(2) { animation-delay: 0.4s; }
+.ai-mascot-belt span:nth-child(3) { animation-delay: 0.8s; }
+
+@keyframes beltBlink {
+    0%, 100% { opacity: 0.4; box-shadow: 0 0 4px rgba(0, 240, 255, 0.4); }
+    50% { opacity: 1; box-shadow: 0 0 8px rgba(0, 240, 255, 0.8); }
+}
+
+.ai-mascot.answering .ai-mascot-belt,
+.ai-mascot.speaking .ai-mascot-belt {
+    gap: 8px;
+}
+
+.ai-mascot.answering .ai-mascot-belt span,
+.ai-mascot.speaking .ai-mascot-belt span {
+    width: 6px;
+    height: 6px;
+}
+
+/* ========================================
+   肩部关节
+   ======================================== */
+.ai-mascot-shoulder {
+    position: absolute;
+    top: 42px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #1a1f2e;
+    border: 1.5px solid #00f0ff;
+    z-index: 2;
+    box-shadow: 0 0 6px rgba(0, 240, 255, 0.15);
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ai-mascot-shoulder-l { left: -5px; }
+.ai-mascot-shoulder-r { right: -5px; }
+
+.ai-mascot.answering .ai-mascot-shoulder,
+.ai-mascot.speaking .ai-mascot-shoulder {
+    top: 86px;
+    width: 18px;
+    height: 18px;
+    border-color: #00f0ff;
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+}
+
+.ai-mascot.answering .ai-mascot-shoulder-l,
+.ai-mascot.speaking .ai-mascot-shoulder-l { left: -9px; }
+
+.ai-mascot.answering .ai-mascot-shoulder-r,
+.ai-mascot.speaking .ai-mascot-shoulder-r { right: -9px; }
+
+/* ========================================
+   手臂 + 蟹钳
+   ======================================== */
+.ai-mascot-arm {
+    position: absolute;
+    top: 38px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 1;
+}
+
+.ai-mascot-arm-l { left: -18px; }
+.ai-mascot-arm-r { right: -18px; }
+
+.ai-mascot-upper-arm {
+    width: 5px;
+    height: 12px;
+    background: linear-gradient(180deg, #1a1f2e, #0c1016);
+    border: 1.5px solid #00f0ff;
+    border-radius: 3px;
+    box-shadow: 0 0 4px rgba(0, 240, 255, 0.1);
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ai-mascot-forearm {
+    width: 5px;
+    height: 12px;
+    background: linear-gradient(180deg, #141820, #0c1016);
+    border: 1.5px solid #00f0ff;
+    border-radius: 3px;
+    box-shadow: 0 0 4px rgba(0, 240, 255, 0.1);
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ai-mascot-arm-joint {
+    width: 7px;
+    height: 3px;
+    background: #21262d;
+    border: 1px solid #00f0ff;
+    border-radius: 2px;
+    box-shadow: 0 0 3px rgba(0, 240, 255, 0.15);
+    transition: all 0.5s;
+}
+
+/* === 蟹钳 === */
+.ai-mascot-claw {
+    position: relative;
+    width: 18px;
+    height: 18px;
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ai-mascot-claw-upper {
+    position: absolute;
+    width: 12px;
+    height: 6px;
+    border-radius: 8px 8px 0 0;
+    background: #0c1016;
+    border: 1.5px solid #00f0ff;
+    top: 1px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-8deg);
+    transform-origin: bottom center;
+    box-shadow: 0 0 6px rgba(0, 240, 255, 0.3), 0 0 12px rgba(0, 240, 255, 0.1);
+    transition: all 0.3s;
+}
+
+.ai-mascot-claw-lower {
+    position: absolute;
+    width: 12px;
+    height: 6px;
+    border-radius: 0 0 8px 8px;
+    background: #0c1016;
+    border: 1.5px solid #00f0ff;
+    bottom: 1px;
+    left: 50%;
+    transform: translateX(-50%) rotate(8deg);
+    transform-origin: top center;
+    box-shadow: 0 0 6px rgba(0, 240, 255, 0.3), 0 0 12px rgba(0, 240, 255, 0.1);
+    transition: all 0.3s;
+}
+
+.ai-mascot-claw-upper::after,
+.ai-mascot-claw-lower::after {
+    content: '';
+    position: absolute;
+    left: 1px;
+    right: 1px;
+    height: 1px;
+    background: rgba(0, 240, 255, 0.4);
+}
+
+.ai-mascot-claw-upper::after { bottom: 1px; }
+.ai-mascot-claw-lower::after { top: 1px; }
+
+.ai-mascot.answering .ai-mascot-claw-upper,
+.ai-mascot.speaking .ai-mascot-claw-upper {
+    animation: clawOpenUpper 0.4s ease-in-out infinite alternate;
+}
+
+.ai-mascot.answering .ai-mascot-claw-lower,
+.ai-mascot.speaking .ai-mascot-claw-lower {
+    animation: clawOpenLower 0.4s ease-in-out infinite alternate;
+}
+
+@keyframes clawOpenUpper {
+    0% { transform: translateX(-50%) rotate(-8deg); }
+    100% { transform: translateX(-50%) rotate(-25deg); }
+}
+
+@keyframes clawOpenLower {
+    0% { transform: translateX(-50%) rotate(8deg); }
+    100% { transform: translateX(-50%) rotate(25deg); }
+}
+
+.ai-mascot.thinking .ai-mascot-claw-upper {
+    transform: translateX(-50%) rotate(-20deg);
+}
+
+.ai-mascot.thinking .ai-mascot-claw-lower {
+    transform: translateX(-50%) rotate(20deg);
+}
+
+.ai-mascot.answering .ai-mascot-arm,
+.ai-mascot.speaking .ai-mascot-arm {
+    top: 80px;
+}
+
+.ai-mascot.answering .ai-mascot-arm-l,
+.ai-mascot.speaking .ai-mascot-arm-l { left: -32px; }
+
+.ai-mascot.answering .ai-mascot-arm-r,
+.ai-mascot.speaking .ai-mascot-arm-r { right: -32px; }
+
+.ai-mascot.answering .ai-mascot-upper-arm,
+.ai-mascot.speaking .ai-mascot-upper-arm {
+    width: 8px;
+    height: 20px;
+}
+
+.ai-mascot.answering .ai-mascot-forearm,
+.ai-mascot.speaking .ai-mascot-forearm {
+    width: 8px;
+    height: 20px;
+}
+
+.ai-mascot.answering .ai-mascot-arm-joint,
+.ai-mascot.speaking .ai-mascot-arm-joint {
+    width: 12px;
+    height: 4px;
+    border-color: #00f0ff;
+    box-shadow: 0 0 6px rgba(0, 240, 255, 0.25);
+}
+
+.ai-mascot.answering .ai-mascot-claw,
+.ai-mascot.speaking .ai-mascot-claw {
+    width: 32px;
+    height: 32px;
+}
+
+.ai-mascot.answering .ai-mascot-claw-upper,
+.ai-mascot.speaking .ai-mascot-claw-upper {
+    width: 20px;
+    height: 10px;
+    border-radius: 12px 12px 0 0;
+    border-width: 2px;
+}
+
+.ai-mascot.answering .ai-mascot-claw-lower,
+.ai-mascot.speaking .ai-mascot-claw-lower {
+    width: 20px;
+    height: 10px;
+    border-radius: 0 0 12px 12px;
+    border-width: 2px;
+}
+
+/* ========================================
+   机械腿 - 连接到躯干下方
+   ======================================== */
+.ai-mascot-leg {
+    position: absolute;
+    top: 86px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 0;
+}
+
+.ai-mascot-leg-l { left: 18px; }
+.ai-mascot-leg-r { right: 18px; }
+
+.ai-mascot-thigh {
+    width: 6px;
+    height: 10px;
+    background: linear-gradient(180deg, #1a1f2e, #0c1016);
+    border: 1.5px solid #00f0ff;
+    border-radius: 3px;
+    box-shadow: 0 0 4px rgba(0, 240, 255, 0.1);
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ai-mascot-calf {
+    width: 6px;
+    height: 10px;
+    background: linear-gradient(180deg, #141820, #0c1016);
+    border: 1.5px solid #00f0ff;
+    border-radius: 3px;
+    box-shadow: 0 0 4px rgba(0, 240, 255, 0.1);
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ai-mascot-knee {
+    width: 8px;
+    height: 4px;
+    background: #21262d;
+    border: 1.5px solid #00f0ff;
+    border-radius: 2px;
+    box-shadow: 0 0 4px rgba(0, 240, 255, 0.15);
+    transition: all 0.5s;
+}
+
+.ai-mascot-foot {
+    width: 12px;
+    height: 6px;
+    background: #0c1016;
+    border: 1.5px solid #00f0ff;
+    border-radius: 3px 3px 4px 4px;
+    box-shadow: 0 0 6px rgba(0, 240, 255, 0.1);
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ai-mascot.answering .ai-mascot-leg,
+.ai-mascot.speaking .ai-mascot-leg {
+    top: 184px;
+}
+
+.ai-mascot.answering .ai-mascot-leg-l,
+.ai-mascot.speaking .ai-mascot-leg-l { left: 42px; }
+
+.ai-mascot.answering .ai-mascot-leg-r,
+.ai-mascot.speaking .ai-mascot-leg-r { right: 42px; }
+
+.ai-mascot.answering .ai-mascot-thigh,
+.ai-mascot.speaking .ai-mascot-thigh {
+    width: 10px;
+    height: 18px;
+}
+
+.ai-mascot.answering .ai-mascot-calf,
+.ai-mascot.speaking .ai-mascot-calf {
+    width: 10px;
+    height: 18px;
+}
+
+.ai-mascot.answering .ai-mascot-knee,
+.ai-mascot.speaking .ai-mascot-knee {
+    width: 14px;
+    height: 5px;
+    border-color: #00f0ff;
+    box-shadow: 0 0 8px rgba(0, 240, 255, 0.25);
+}
+
+.ai-mascot.answering .ai-mascot-foot,
+.ai-mascot.speaking .ai-mascot-foot {
+    width: 20px;
+    height: 10px;
+    border-radius: 4px 4px 6px 6px;
+    border-color: #00f0ff;
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.18);
+}
+
+/* ========================================
+   关键词动画 - 跳舞、挥手等
+   ======================================== */
+.ai-mascot.wave .ai-mascot-arm-r {
+    animation: waveArmR 0.5s ease-in-out 3;
+}
+
+@keyframes waveArmR {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-12px) rotate(-25deg); }
+}
+
+.ai-mascot.jump .ai-mascot-body {
+    animation: jumpAnim 0.4s ease-in-out 3;
+}
+
+@keyframes jumpAnim {
+    0%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-20px); }
+    50% { transform: translateY(0); }
+    70% { transform: translateY(-10px); }
+    85% { transform: translateY(0); }
+}
+
+.ai-mascot.dance .ai-mascot-body {
+    animation: danceBody 0.4s ease-in-out 4;
+}
+
+.ai-mascot.dance .ai-mascot-arm {
+    animation: danceArm 0.4s ease-in-out infinite;
+}
+
+@keyframes danceBody {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-8deg); }
+    75% { transform: rotate(8deg); }
+}
+
+@keyframes danceArm {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px) rotate(-20deg); }
+}
+
+.ai-mascot.nod .ai-mascot-head {
+    animation: nodAnim 0.3s ease-in-out 4;
+}
+
+@keyframes nodAnim {
+    0%, 100% { transform: translateX(-50%) rotate(0deg); }
+    50% { transform: translateX(-50%) rotate(6deg); }
+}
+
+.ai-mascot.shake .ai-mascot-head {
+    animation: shakeAnim 0.25s ease-in-out 5;
+}
+
+@keyframes shakeAnim {
+    0%, 100% { transform: translateX(-50%) rotate(0deg); }
+    25% { transform: translateX(-50%) rotate(-10deg); }
+    75% { transform: translateX(-50%) rotate(10deg); }
+}
+
+/* ========================================
+   聊天气泡
+   ======================================== */
+.ai-mascot-bubble {
+    position: absolute;
+    left: 90px;
+    top: 0;
+    max-width: calc(100vw - 180px);
+    padding: 12px 16px;
+    background: rgba(13, 17, 23, 0.97);
+    border: 1px solid rgba(0, 240, 255, 0.25);
+    border-radius: 14px;
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.6;
+    word-break: break-word;
+    opacity: 0;
+    transform: translateY(10px) scale(0.9);
+    transform-origin: left bottom;
+    pointer-events: auto;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 24px rgba(0, 240, 255, 0.2), 0 0 16px rgba(0, 240, 255, 0.08);
+    white-space: pre-wrap;
+    z-index: 5;
+    max-height: 40vh;
+    overflow-y: auto;
+}
+
+.ai-mascot-bubble.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.ai-mascot-bubble.answering {
+    left: 12px;
+    right: 12px;
+    top: 60px;
+    max-width: none;
+    max-height: 45vh;
+    min-height: 60px;
+    font-size: 15px;
+    padding: 20px 24px;
+    border-radius: 16px;
+    border-color: rgba(0, 240, 255, 0.4);
+    box-shadow: 0 8px 32px rgba(0, 240, 255, 0.25), 0 0 24px rgba(0, 240, 255, 0.08);
+    z-index: 15;
+    transform-origin: center bottom;
+    overflow-y: auto;
+}
+
+.ai-mascot-bubble-tail {
+    position: absolute;
+    left: -8px;
+    top: 20px;
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right: 8px solid rgba(13, 17, 23, 0.97);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.ai-mascot-bubble.answering .ai-mascot-bubble-tail {
+    left: 50%;
+    margin-left: -8px;
+    bottom: -8px;
+    top: auto;
+    border-bottom: none;
+    border-top: 8px solid rgba(13, 17, 23, 0.97);
+    border-right: 8px solid transparent;
+    border-left: 8px solid transparent;
+}
+
+.ai-mascot-bubble span {
+    display: block;
+}
+
+.ai-mascot-bubble.answering span {
+    padding-top: 8px;
+}
+
+.ai-mascot-bubble::-webkit-scrollbar {
+    width: 3px;
+}
+
+.ai-mascot-bubble::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 2px;
+}
+
+/* ========================================
+   移动端适配
+   ======================================== */
+@media (max-width: 640px) {
+    .ai-mascot {
+        left: 8px;
+        bottom: 8px;
+        max-width: calc(100% - 16px);
+        max-height: calc(100% - 16px);
+    }
+
+    .ai-mascot-body {
+        width: 62px;
+        height: 110px;
+    }
+
+    .ai-mascot-bubble {
+        left: 70px;
+        max-width: calc(100vw - 140px);
+    }
+
+    .ai-mascot-thinking-bar {
+        left: auto;
+        right: calc(100% + 8px);
+        white-space: normal;
+        max-width: 200px;
+    }
+
+    .ai-mascot-head {
+        width: 44px;
+        height: 22px;
+        border-radius: 6px;
+    }
+
+    .ai-mascot-eyes { gap: 6px; }
+    .ai-mascot-eye { width: 8px; height: 8px; }
+    .ai-mascot-nose { width: 4px; height: 4px; }
+    .ai-mascot-mouth { width: 12px; height: 4px; }
+
+    .ai-mascot-ear {
+        width: 4px;
+        height: 10px;
+        top: 6px;
+    }
+
+    .ai-mascot-ear-l { left: -6px; }
+    .ai-mascot-ear-r { right: -6px; }
+
+    .ai-mascot-neck {
+        width: 8px;
+        height: 6px;
+        top: 24px;
+    }
+
+    .ai-mascot-torso {
+        width: 46px;
+        height: 34px;
+        top: 32px;
+        border-radius: 8px;
+    }
+
+    .ai-mascot-core {
+        width: 12px;
+        height: 12px;
+    }
+
+    .ai-mascot-belt { gap: 3px; }
+    .ai-mascot-belt span { width: 3px; height: 3px; }
+
+    .ai-mascot-shoulder {
+        width: 8px;
+        height: 8px;
+        top: 34px;
+    }
+
+    .ai-mascot-shoulder-l { left: -4px; }
+    .ai-mascot-shoulder-r { right: -4px; }
+
+    .ai-mascot-arm {
+        top: 30px;
+    }
+
+    .ai-mascot-arm-l { left: -14px; }
+    .ai-mascot-arm-r { right: -14px; }
+
+    .ai-mascot-upper-arm,
+    .ai-mascot-forearm {
+        width: 4px;
+        height: 9px;
+    }
+
+    .ai-mascot-arm-joint {
+        width: 6px;
+        height: 2px;
+    }
+
+    .ai-mascot-claw {
+        width: 14px;
+        height: 14px;
+    }
+
+    .ai-mascot-claw-upper,
+    .ai-mascot-claw-lower {
+        width: 10px;
+        height: 5px;
+        border-width: 1px;
+    }
+
+    .ai-mascot-leg {
+        top: 68px;
+    }
+
+    .ai-mascot-leg-l { left: 14px; }
+    .ai-mascot-leg-r { right: 14px; }
+
+    .ai-mascot-thigh,
+    .ai-mascot-calf {
+        width: 5px;
+        height: 8px;
+    }
+
+    .ai-mascot-knee {
+        width: 7px;
+        height: 3px;
+    }
+
+    .ai-mascot-foot {
+        width: 10px;
+        height: 5px;
+    }
+
+    .ai-mascot-antenna {
+        height: 10px;
+        top: -12px;
+    }
+
+    .ai-mascot-antenna-tip {
+        width: 5px;
+        height: 5px;
+        top: -4px;
+    }
+
+    .ai-mascot-bubble {
+        left: 60px;
+        top: -10px;
+        font-size: 12px;
+        padding: 10px 12px;
+        max-height: 35vh;
+        max-width: calc(100vw - 120px);
+    }
+
+    .ai-mascot-bubble-tail {
+        left: -8px;
+        top: 16px;
+    }
+
+    .ai-mascot.answering,
+    .ai-mascot.speaking {
+        bottom: 8% !important;
+    }
+
+    .ai-mascot.answering .ai-mascot-body,
+    .ai-mascot.speaking .ai-mascot-body {
+        width: 118px;
+        height: 200px;
+    }
+
+    .ai-mascot.answering .ai-mascot-head,
+    .ai-mascot.speaking .ai-mascot-head {
+        width: 88px;
+        height: 44px;
+        border-radius: 10px;
+    }
+
+    .ai-mascot.answering .ai-mascot-eyes,
+    .ai-mascot.speaking .ai-mascot-eyes {
+        gap: 16px;
+    }
+
+    .ai-mascot.answering .ai-mascot-eye,
+    .ai-mascot.speaking .ai-mascot-eye {
+        width: 16px;
+        height: 16px;
+    }
+
+    .ai-mascot.answering .ai-mascot-nose,
+    .ai-mascot.speaking .ai-mascot-nose {
+        width: 8px;
+        height: 8px;
+    }
+
+    .ai-mascot.answering .ai-mascot-mouth,
+    .ai-mascot.speaking .ai-mascot-mouth {
+        width: 26px;
+        height: 8px;
+    }
+
+    .ai-mascot.answering .ai-mascot-ear,
+    .ai-mascot.speaking .ai-mascot-ear {
+        width: 8px;
+        height: 20px;
+        top: 14px;
+    }
+
+    .ai-mascot.answering .ai-mascot-ear-l,
+    .ai-mascot.speaking .ai-mascot-ear-l { left: -12px; }
+
+    .ai-mascot.answering .ai-mascot-ear-r,
+    .ai-mascot.speaking .ai-mascot-ear-r { right: -12px; }
+
+    .ai-mascot.answering .ai-mascot-neck,
+    .ai-mascot.speaking .ai-mascot-neck {
+        width: 14px;
+        height: 8px;
+        top: 50px;
+    }
+
+    .ai-mascot.answering .ai-mascot-torso,
+    .ai-mascot.speaking .ai-mascot-torso {
+        width: 94px;
+        height: 68px;
+        top: 60px;
+        border-radius: 12px;
+    }
+
+    .ai-mascot.answering .ai-mascot-core,
+    .ai-mascot.speaking .ai-mascot-core {
+        width: 24px;
+        height: 24px;
+    }
+
+    .ai-mascot.answering .ai-mascot-belt span,
+    .ai-mascot.speaking .ai-mascot-belt span {
+        width: 4px;
+        height: 4px;
+    }
+
+    .ai-mascot.answering .ai-mascot-shoulder,
+    .ai-mascot.speaking .ai-mascot-shoulder {
+        width: 14px;
+        height: 14px;
+        top: 64px;
+    }
+
+    .ai-mascot.answering .ai-mascot-shoulder-l,
+    .ai-mascot.speaking .ai-mascot-shoulder-l { left: -7px; }
+
+    .ai-mascot.answering .ai-mascot-shoulder-r,
+    .ai-mascot.speaking .ai-mascot-shoulder-r { right: -7px; }
+
+    .ai-mascot.answering .ai-mascot-arm,
+    .ai-mascot.speaking .ai-mascot-arm {
+        top: 58px;
+    }
+
+    .ai-mascot.answering .ai-mascot-arm-l,
+    .ai-mascot.speaking .ai-mascot-arm-l { left: -22px; }
+
+    .ai-mascot.answering .ai-mascot-arm-r,
+    .ai-mascot.speaking .ai-mascot-arm-r { right: -22px; }
+
+    .ai-mascot.answering .ai-mascot-upper-arm,
+    .ai-mascot.speaking .ai-mascot-upper-arm,
+    .ai-mascot.answering .ai-mascot-forearm,
+    .ai-mascot.speaking .ai-mascot-forearm {
+        width: 6px;
+        height: 14px;
+    }
+
+    .ai-mascot.answering .ai-mascot-arm-joint,
+    .ai-mascot.speaking .ai-mascot-arm-joint {
+        width: 10px;
+        height: 3px;
+    }
+
+    .ai-mascot.answering .ai-mascot-claw,
+    .ai-mascot.speaking .ai-mascot-claw {
+        width: 24px;
+        height: 24px;
+    }
+
+    .ai-mascot.answering .ai-mascot-claw-upper,
+    .ai-mascot.speaking .ai-mascot-claw-upper,
+    .ai-mascot.answering .ai-mascot-claw-lower,
+    .ai-mascot.speaking .ai-mascot-claw-lower {
+        width: 14px;
+        height: 7px;
+        border-width: 1.5px;
+    }
+
+    .ai-mascot.answering .ai-mascot-leg,
+    .ai-mascot.speaking .ai-mascot-leg {
+        top: 130px;
+    }
+
+    .ai-mascot.answering .ai-mascot-leg-l,
+    .ai-mascot.speaking .ai-mascot-leg-l { left: 30px; }
+
+    .ai-mascot.answering .ai-mascot-leg-r,
+    .ai-mascot.speaking .ai-mascot-leg-r { right: 30px; }
+
+    .ai-mascot.answering .ai-mascot-thigh,
+    .ai-mascot.speaking .ai-mascot-thigh,
+    .ai-mascot.answering .ai-mascot-calf,
+    .ai-mascot.speaking .ai-mascot-calf {
+        width: 7px;
+        height: 12px;
+    }
+
+    .ai-mascot.answering .ai-mascot-knee,
+    .ai-mascot.speaking .ai-mascot-knee {
+        width: 10px;
+        height: 4px;
+    }
+
+    .ai-mascot.answering .ai-mascot-foot,
+    .ai-mascot.speaking .ai-mascot-foot {
+        width: 14px;
+        height: 7px;
+    }
+
+    .ai-mascot.answering .ai-mascot-antenna,
+    .ai-mascot.speaking .ai-mascot-antenna {
+        height: 16px;
+        top: -20px;
+    }
+
+    .ai-mascot.answering .ai-mascot-antenna-tip,
+    .ai-mascot.speaking .ai-mascot-antenna-tip {
+        width: 10px;
+        height: 10px;
+        top: -6px;
+    }
+
+    .ai-mascot.answering .ai-mascot-bubble,
+    .ai-mascot.speaking .ai-mascot-bubble {
+        left: 8px;
+        right: 8px;
+        top: 50px;
+        max-height: 40vh;
+        font-size: 13px;
+        padding: 16px 20px;
+    }
+}
+
+@media (max-width: 380px) {
+    .ai-mascot-bubble {
+        font-size: 11px;
+        padding: 10px 12px;
+    }
+}
