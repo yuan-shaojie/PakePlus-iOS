@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<script>
+(function() {
+    var _store = {};
+    ['localStorage','sessionStorage'].forEach(function(name) {
+        try { var t = window[name]; t.setItem('_x', '1'); t.removeItem('_x'); } catch(e) {
+            Object.defineProperty(window, name, { value: {
+                getItem: function(k) { return _store[k] || null; },
+                setItem: function(k, v) { _store[k] = String(v); },
+                removeItem: function(k) { delete _store[k]; },
+                clear: function() { _store = {}; },
+                get length() { return Object.keys(_store).length; },
+                key: function(i) { return Object.keys(_store)[i] || null; }
+            }, writable: false, configurable: false });
+        }
+    });
+})();
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+<title>小菜鸡Chat</title>
+
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0f0f1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="小菜鸡">
+<link rel="apple-touch-icon" href="assets/images/icon-192.png">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/style_mascot.css">
+
+</head>
+
+<body>
+
+
+
+<div class="bg-grid"></div>
+
+<div class="bg-glow bg-glow-1"></div>
+
+<div class="bg-glow bg-glow-2"></div>
+
+
+
+<div class="app-container">
+
+    <!-- ====== Header ====== -->
+
+    <header class="app-header">
+
+        <div class="header-left">
+
+            <div class="header-avatar" id="headerAvatar" title="会话列表">
+
+                <svg viewBox="0 0 24 24" width="22" height="22">
+
+                    <circle cx="12" cy="12" r="10" fill="none" stroke="var(--accent-cyan)" stroke-width="1.5"/>
+
+                    <circle cx="9" cy="10" r="2" fill="var(--accent-cyan)"/>
+
+                    <circle cx="15" cy="10" r="2" fill="var(--accent-cyan)"/>
+
+                    <path d="M8 15 Q12 18 16 15" fill="none" stroke="var(--accent-cyan)" stroke-width="1.2"/>
+
+                </svg>
+
+            </div>
+
+            <div class="header-info">
+
+                <span class="header-title">小菜鸡</span>
+                <span class="header-subtitle" id="headerStatus">中间件网关</span>
+
+            </div>
+
+        </div>
+
+        <div class="header-right">
+
+            <button class="icon-btn" id="btnHistory" title="会话列表">
+
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+
+                    <line x1="9" y1="9" x2="15" y2="9"/>
+
+                    <line x1="9" y1="13" x2="15" y2="13"/>
+
+                    <line x1="9" y1="17" x2="12" y2="17"/>
+
+                </svg>
+
+            </button>
+
+            <button class="icon-btn" id="btnNewChat" title="新建会话">
+
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+
+                </svg>
+
+            </button>
+
+            <button class="icon-btn" id="btnSettings" title="设置">
+
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+
+                    <circle cx="12" cy="12" r="3"/>
+
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+
+                </svg>
+
+            </button>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- ====== Chat Area ====== -->
+
+    <main class="chat-area" id="chatArea">
+
+        <div class="chat-inner" id="chatInner">
+
+            <div class="welcome-screen" id="welcomeScreen">
+
+                <div class="welcome-icon">
+
+                    <svg viewBox="0 0 80 80" width="80" height="80">
+
+                        <defs>
+
+                            <linearGradient id="welcomeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+
+                                <stop offset="0%" style="stop-color:#00f0ff"/>
+
+                                <stop offset="100%" style="stop-color:#8b5cf6"/>
+
+                            </linearGradient>
+
+                        </defs>
+
+                        <circle cx="40" cy="40" r="38" fill="none" stroke="url(#welcomeGrad)" stroke-width="2"/>
+
+                        <circle cx="28" cy="30" r="6" fill="#00f0ff" opacity="0.8"/>
+
+                        <circle cx="52" cy="30" r="6" fill="#00f0ff" opacity="0.8"/>
+
+                        <path d="M22 52 Q40 62 58 52" fill="none" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round"/>
+
+                        <line x1="40" y1="38" x2="40" y2="48" stroke="#00f0ff" stroke-width="2" stroke-linecap="round"/>
+
+                        <circle cx="40" cy="36" r="2.5" fill="#00f0ff"/>
+
+                    </svg>
+
+                </div>
+
+                <h2 class="welcome-title">小菜鸡AI</h2>
+                <p class="welcome-desc">WebSocket 实时通信 · 流式响应</p>
+                <div class="welcome-hints">
+                    <span>提问编程问题</span>
+                    <span>分析文档内容</span>
+                    <span>创意写作辅助</span>
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- AI Mascot -->
+
+        <div class="ai-backdrop" id="aiBackdrop"></div>
+
+        <div class="ai-mascot" id="aiMascot">
+
+            <div class="ai-mascot-thinking-bar" id="thinkingBar">
+
+                <span class="thinking-bar-label">思考中</span>
+
+                <span class="thinking-bar-dots">
+
+                    <span></span><span></span><span></span>
+
+                </span>
+
+            </div>
+
+            <div class="ai-mascot-body">
+
+                <!-- 天线 -->
+
+                <div class="ai-mascot-antenna">
+
+                    <div class="ai-mascot-antenna-tip"></div>
+
+                </div>
+
+                <!-- 头部：圆角矩形 -->
+                <div class="ai-mascot-head">
+                    <div class="ai-mascot-face">
+                        <div class="ai-mascot-eyes">
+                            <div class="ai-mascot-eye ai-mascot-eye-l">
+                                <div class="ai-mascot-eye-glow"></div>
+                            </div>
+                            <div class="ai-mascot-eye ai-mascot-eye-r">
+                                <div class="ai-mascot-eye-glow"></div>
+                            </div>
+                        </div>
+                        <div class="ai-mascot-nose"></div>
+                        <div class="ai-mascot-mouth">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </div>
+                    <div class="ai-mascot-ear ai-mascot-ear-l"></div>
+                    <div class="ai-mascot-ear ai-mascot-ear-r"></div>
+                </div>
+
+                <!-- 肩部关节 -->
+
+                <div class="ai-mascot-shoulder ai-mascot-shoulder-l"></div>
+
+                <div class="ai-mascot-shoulder ai-mascot-shoulder-r"></div>
+
+                <!-- 脖子 -->
+
+                <div class="ai-mascot-neck"></div>
+
+                <!-- 躯干 -->
+
+                <div class="ai-mascot-torso">
+
+                    <div class="ai-mascot-core">
+
+                        <div class="ai-mascot-core-ring"></div>
+
+                    </div>
+
+                    <div class="ai-mascot-belt">
+
+                        <span></span><span></span><span></span>
+
+                    </div>
+
+                </div>
+
+                <!-- 手臂+蟹钳 -->
+
+                <div class="ai-mascot-arm ai-mascot-arm-l">
+
+                    <div class="ai-mascot-upper-arm"></div>
+
+                    <div class="ai-mascot-arm-joint"></div>
+
+                    <div class="ai-mascot-forearm"></div>
+
+                    <div class="ai-mascot-claw">
+
+                        <div class="ai-mascot-claw-upper"></div>
+
+                        <div class="ai-mascot-claw-lower"></div>
+
+                    </div>
+
+                </div>
+
+                <div class="ai-mascot-arm ai-mascot-arm-r">
+
+                    <div class="ai-mascot-upper-arm"></div>
+
+                    <div class="ai-mascot-arm-joint"></div>
+
+                    <div class="ai-mascot-forearm"></div>
+
+                    <div class="ai-mascot-claw">
+
+                        <div class="ai-mascot-claw-upper"></div>
+
+                        <div class="ai-mascot-claw-lower"></div>
+
+                    </div>
+
+                </div>
+
+                <!-- 机械腿 -->
+
+                <div class="ai-mascot-leg ai-mascot-leg-l">
+
+                    <div class="ai-mascot-thigh"></div>
+
+                    <div class="ai-mascot-knee"></div>
+
+                    <div class="ai-mascot-calf"></div>
+
+                    <div class="ai-mascot-foot"></div>
+
+                </div>
+
+                <div class="ai-mascot-leg ai-mascot-leg-r">
+
+                    <div class="ai-mascot-thigh"></div>
+
+                    <div class="ai-mascot-knee"></div>
+
+                    <div class="ai-mascot-calf"></div>
+
+                    <div class="ai-mascot-foot"></div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="ai-mascot-bubble" id="aiMascotBubble">
+
+            <div class="ai-mascot-bubble-tail"></div>
+
+            <span id="aiMascotText"></span>
+
+        </div>
+
+    </main>
+
+
+
+    <!-- Typing Indicator -->
+
+    <div class="typing-indicator" id="typingIndicator">
+
+        <span></span><span></span><span></span>
+
+    </div>
+
+
+
+    <!-- ====== Input Area ====== -->
+
+    <footer class="input-area">
+
+        <div class="input-container">
+
+            <button class="input-btn" id="btnFile" title="上传文件">
+
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+
+                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+
+                </svg>
+
+            </button>
+
+            <input type="file" id="fileInput" accept="image/*,.txt,.md,.json,.js,.css,.html,.xml,.yaml,.yml,.py,.java,.c,.cpp,.h,.pdf,.doc,.docx" multiple hidden>
+
+            <div class="input-wrapper">
+
+                <textarea id="messageInput" class="chat-input" placeholder="输入消息..." rows="1" maxlength="10000"></textarea>
+
+                <div class="file-preview-bar" id="filePreviewBar"></div>
+
+            </div>
+
+            <button class="input-btn" id="btnVoice" title="语音输入">
+
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+
+                    <line x1="12" y1="19" x2="12" y2="23"/>
+
+                    <line x1="8" y1="23" x2="16" y2="23"/>
+
+                </svg>
+
+            </button>
+
+            <button class="send-btn" id="btnSend" disabled>
+
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+
+                </svg>
+
+            </button>
+
+        </div>
+
+    </footer>
+
+
+
+    <!-- ====== Voice Overlay ====== -->
+
+    <div class="voice-overlay" id="voiceOverlay">
+
+        <div class="voice-pulse"></div>
+
+        <div class="voice-icon">
+
+            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#00f0ff" stroke-width="1.5">
+
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+
+                <line x1="12" y1="19" x2="12" y2="23"/>
+
+                <line x1="8" y1="23" x2="16" y2="23"/>
+
+            </svg>
+
+        </div>
+
+        <div class="voice-text" id="voiceText">正在监听...</div>
+                <div class="voice-actions">
+                    <button class="voice-cancel" id="voiceCancel">取消</button>
+                    <button class="voice-send" id="voiceSend">发送</button>
+                </div>
+
+    </div>
+
+
+
+    <!-- ====== Settings Panel ====== -->
+
+    <div class="settings-overlay" id="settingsOverlay">
+
+        <div class="settings-panel" id="settingsPanel">
+
+            <div class="settings-header">
+
+                <span class="settings-title">系统设置</span>
+
+                <button class="settings-close" id="settingsClose">
+
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+
+                    </svg>
+
+                </button>
+
+            </div>
+
+            <div class="settings-body">
+
+                <div class="setting-group">
+
+                    <label class="setting-label">温度参数 <span class="setting-value" id="tempValue">0.7</span></label>
+                    <input type="range" class="setting-range" id="temperature" min="0" max="2" step="0.1" value="0.7">
+                    <div class="range-labels"><span>严谨</span><span>平衡</span><span>创意</span></div>
+
+                </div>
+
+                <div class="setting-info">
+
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+
+                    <span>WebSocket 实时通信 · 小菜鸡网页版 · 聊天记录本地存储</span>
+
+                </div>
+
+                <div class="setting-row">
+                    <label class="setting-label">语音朗读</label>
+                    <div class="tts-controls">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="ttsToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <select class="setting-select" id="ttsVoiceSelect">
+                            <option value="">加载声音列表...</option>
+                        </select>
+                        <span class="setting-desc">3060 TTS</span>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+
+                    <label class="setting-label">朗读语速 <span class="setting-value" id="rateValue">1.6</span></label>
+                    <input type="range" class="setting-range" id="rateSlider" min="0.5" max="3" step="0.1" value="1.6">
+                    <div class="range-labels"><span>慢</span><span>正常</span><span>快</span></div>
+
+                </div>
+
+                <!-- ====== API 服务器配置 ====== -->
+                <div class="setting-group">
+                    <label class="setting-label" style="display:flex;align-items:center;justify-content:space-between;">
+                        <span>API 服务器</span>
+                        <button id="btnCheckServers" style="background:var(--accent-cyan);color:#000;border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">检测</button>
+                    </label>
+                    <div id="apiServerList" style="font-size:13px;color:var(--text-secondary);">加载中...</div>
+                </div>
+
+                <button class="settings-save" id="settingsSave">保存设置</button>
+
+                <button class="settings-save" id="clearCache" style="background:var(--danger);margin-top:8px;">清除缓存并刷新</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ====== Sidebar ====== -->
+
+    <div class="sidebar-overlay" id="sidebarOverlay">
+
+        <div class="sidebar-panel" id="sidebarPanel">
+
+            <div class="sidebar-header">
+
+                <span class="sidebar-title">会话列表</span>
+
+                <button class="sidebar-close" id="sidebarClose">
+
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+
+                    </svg>
+
+                </button>
+
+            </div>
+
+            <div class="sidebar-body">
+
+                <div class="session-list" id="sessionList"></div>
+
+            </div>
+
+            <div class="sidebar-footer">
+
+                <button class="btn-new-session" id="btnNewSession">+ 新建会话</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<script src="assets/js/api.js"></script>
+<script src="assets/js/chat_ws.js"></script>
+<script src="assets/js/chat_ui.js"></script>
+<script src="assets/js/chat_voice.js"></script>
+<script src="assets/js/chat.js"></script>
+<script>
+Chat.init();
+</script>
+
+</body>
+
+</html>
+
